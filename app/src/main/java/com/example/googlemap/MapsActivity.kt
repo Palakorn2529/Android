@@ -2,6 +2,7 @@ package com.example.googlemap
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -13,6 +14,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.googlemap.databinding.ActivityMapsBinding
+import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -71,13 +73,36 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap){
         mMap = googleMap
 
-        val latitud = 14.05047
+        val latitude = 14.05047
         val longitude = 100.60761
         val zoomLevel = 15f
 
-        val homeLatLng = LatLng(latitud,longitude)
+        val homeLatLng = LatLng(latitude,longitude)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
         mMap.addMarker(MarkerOptions().position(homeLatLng))
+
+        setMapLongClick(mMap)
+        setPoiClick(mMap)
+    }
+    private fun setMapLongClick(map: GoogleMap){
+        map.setOnMapLongClickListener { latLng ->
+            val snippet = String.format(
+                Locale.getDefault(),
+                "ละติจูด: %1$.5f, ลองจิจูด: %2f",
+                latLng.latitude,
+                latLng.longitude
+            )
+
+            map.addMarker(
+                MarkerOptions().position(latLng).title("ที่ทำงาน").snippet(snippet)
+            )
+        }
     }
 
+    private fun setPoiClick(map: GoogleMap){
+        map.setOnPoiClickListener{
+            poi -> val poiMaker = map.addMarker(MarkerOptions().position(poi.latLng).title(poi.name))
+            poiMaker.showInfoWindow()
+        }
+    }
 }
